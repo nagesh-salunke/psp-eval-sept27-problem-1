@@ -14,19 +14,19 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: '17'
 
-      - name: Compile Java
-        run: |
-          javac Solution.java
+      - name: Compile Solution.java
+        run: javac Solution.java
 
       - name: Run Tests
         run: |
           mkdir results
           for folder in tests/public tests/hidden; do
-            for infile in tests/*.in; do
+            for infile in $folder/*.in; do
               outfile="results/$(basename $infile .in).out"
               java Solution < "$infile" > "$outfile"
-              diff -q "$outfile" "tests/$(basename $infile .in).out" || echo "Test $(basename $infile) failed"
+              diff -q "$outfile" "$folder/$(basename $infile .in).out" || echo "Test $(basename $infile) failed"
             done
           done
