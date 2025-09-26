@@ -18,7 +18,6 @@ public class Solution {
             }
         }
 
-        // Read target word
         String word = sc.nextLine();
         System.out.println("YES");
         // TODO: implement your solution logic
