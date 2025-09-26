@@ -19,12 +19,14 @@ jobs:
       - name: Compile Java
         run: |
           javac Solution.java
-          
+
       - name: Run Tests
         run: |
           mkdir results
-          for infile in tests/*.in; do
-            outfile="results/$(basename $infile .in).out"
-            java Solution < "$infile" > "$outfile"
-            diff -q "$outfile" "tests/$(basename $infile .in).out" || echo "Test $(basename $infile) failed"
+          for folder in tests/public tests/hidden; do
+            for infile in tests/*.in; do
+              outfile="results/$(basename $infile .in).out"
+              java Solution < "$infile" > "$outfile"
+              diff -q "$outfile" "tests/$(basename $infile .in).out" || echo "Test $(basename $infile) failed"
+            done
           done
