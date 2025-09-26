@@ -20,13 +20,54 @@ jobs:
       - name: Compile Solution.java
         run: javac Solution.java
 
-      - name: Run Tests
+      - name: Run Public Tests
         run: |
-          mkdir results
-          for folder in tests/public tests/hidden; do
-            for infile in $folder/*.in; do
-              outfile="results/$(basename $infile .in).out"
-              java Solution < "$infile" > "$outfile"
-              diff -q "$outfile" "$folder/$(basename $infile .in).out" || echo "Test $(basename $infile) failed"
-            done
+          set -e
+          mkdir -p results
+          for infile in tests/public/*.in; do
+            outfile="results/$(basename $infile .in).out"
+            java Solution < "$infile" > "$outfile"
+
+            tr -d '\r' < "$outfile" | sed '/^$/d' > "${outfile}.norm"
+            tr -d '\r' < "tests/public/$(basename $infile .in).out" | sed '/^$/d' > "tests/public/$(basename $infile .in).out.norm"
+
+            if diff -q "${outfile}.norm" "tests/public/$(basename $infile .in).out.norm"; then
+              echo "✅ $(basename $infile) passed"
+            else
+              echo "❌ $(basename $infile) failed"
+              echo "Expected:"
+              cat "tests/public/$(basename $infile .in).out.norm"
+              echo "Got:"
+              cat "${outfile}.norm"
+              exit 1
+            fi
+          done
+
+      - name: Run Hidden Tests
+        env:
+          HIDDEN_REPO_TOKEN: ${{ secrets.HIDDEN_REPO_TOKEN }}
+        run: |
+          set -e
+          mkdir -p hidden_tests results
+
+          # Clone private repo with hidden tests
+          git clone https://x-access-token:${HIDDEN_REPO_TOKEN}@github.com/nagesh-salunke/psp-eval-sept27-problem-1-hidden-tests hidden_tests
+
+          for infile in hidden_tests/*.in; do
+            outfile="results/$(basename $infile .in).out"
+            java Solution < "$infile" > "$outfile"
+
+            tr -d '\r' < "$outfile" | sed '/^$/d' > "${outfile}.norm"
+            tr -d '\r' < "hidden_tests/$(basename $infile .in).out" | sed '/^$/d' > "hidden_tests/$(basename $infile .in).out.norm"
+
+            if diff -q "${outfile}.norm" "hidden_tests/$(basename $infile .in).out.norm"; then
+              echo "✅ $(basename $infile) passed"
+            else
+              echo "❌ $(basename $infile) failed"
+              echo "Expected:"
+              cat "hidden_tests/$(basename $infile .in).out.norm"
+              echo "Got:"
+              cat "${outfile}.norm"
+              exit 1
+            fi
           done
