@@ -28,6 +28,7 @@ jobs:
             outfile="results/$(basename $infile .in).out"
             java Solution < "$infile" > "$outfile"
 
+            # Normalize output
             tr -d '\r' < "$outfile" | sed '/^$/d' > "${outfile}.norm"
             tr -d '\r' < "tests/public/$(basename $infile .in).out" | sed '/^$/d' > "tests/public/$(basename $infile .in).out.norm"
 
@@ -35,6 +36,8 @@ jobs:
               echo "✅ $(basename $infile) passed"
             else
               echo "❌ $(basename $infile) failed"
+              echo "Input:"
+              cat "$infile"
               echo "Expected:"
               cat "tests/public/$(basename $infile .in).out.norm"
               echo "Got:"
@@ -51,7 +54,7 @@ jobs:
           mkdir -p hidden_tests results
 
           # Clone private repo with hidden tests
-          git clone https://x-access-token:${HIDDEN_REPO_TOKEN}@github.com/nagesh-salunke/psp-eval-sept27-problem-1-hidden-tests hidden_tests
+          git clone https://x-access-token:${HIDDEN_REPO_TOKEN}@github.com/YourOrg/problem1-hidden-tests.git hidden_tests
 
           for infile in hidden_tests/*.in; do
             outfile="results/$(basename $infile .in).out"
@@ -64,6 +67,8 @@ jobs:
               echo "✅ $(basename $infile) passed"
             else
               echo "❌ $(basename $infile) failed"
+              echo "Input:"
+              cat "$infile"
               echo "Expected:"
               cat "hidden_tests/$(basename $infile .in).out.norm"
               echo "Got:"
