@@ -54,7 +54,7 @@ jobs:
           mkdir -p hidden_tests results
 
           # Clone private repo with hidden tests
-          git clone https://x-access-token:${HIDDEN_REPO_TOKEN}@github.com/YourOrg/problem1-hidden-tests.git hidden_tests
+          git clone https://x-access-token:${HIDDEN_REPO_TOKEN}@github.com/nagesh-salunke/psp-eval-sept27-problem-1-hidden-tests.git hidden_tests
 
           for infile in hidden_tests/*.in; do
             outfile="results/$(basename $infile .in).out"
